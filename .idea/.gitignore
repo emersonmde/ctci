@@ -1,2 +1,9 @@
 # Default ignored files
-/workspace.xml
+*
+
+!vcs.xml
+!.gitignore
+!misc.xml
+!compiler.xml
+!codeStyles
+!codeStyles/*
