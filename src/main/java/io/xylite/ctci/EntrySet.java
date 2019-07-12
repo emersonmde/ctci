@@ -1,10 +1,10 @@
 package io.xylite.ctci;
 
-public class CtciEntrySet<K, V> {
+public class EntrySet<K, V> {
     private K key;
     private V value;
 
-    CtciEntrySet(K key, V value) {
+    EntrySet(K key, V value) {
         this.key = key;
         this.value = value;
     }

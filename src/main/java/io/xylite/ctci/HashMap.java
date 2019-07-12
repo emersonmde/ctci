@@ -3,41 +3,75 @@ package io.xylite.ctci;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-public class CtciHashMap<K, V> {
+/**
+ * A simple HashMap implementation
+ * @param <K> the type used for keys
+ * @param <V> the type used for values
+ */
+public class HashMap<K, V> {
     private static final Integer DEFAULT_SIZE = 3;
     private static final Float LOAD_FACTOR = 0.75f;
     private Integer numEntries;
-    private LinkedList<CtciEntrySet<K, V>>[] map;
+    private LinkedList<EntrySet<K, V>>[] map;
 
-    CtciHashMap() {
+    /**
+     * Constructs an empty HashMap
+     */
+    HashMap() {
         numEntries = 0;
         map = new LinkedList[DEFAULT_SIZE];
     }
 
+    /**
+     * Put a new entry in the HashMap
+     * @param key the key to calculate the hash
+     * @param value the value use for the entry
+     * @return the value that was used
+     * @implNote resizes and rehashes the map if this entry exceeds
+     * the given load factor
+     * @see #resize
+     */
     public V put(K key, V value) {
-        // Make sure we stay under LOAD_FACTOR
-        numEntries++;
+        // Resize map array before we hash the key
         resize();
+        Integer index = index(key.hashCode());
+        numEntries++;
 
-        Integer location = index(key.hashCode());
-
-        if (map[location] == null) {
-            map[location] = new LinkedList<CtciEntrySet<K, V>>();
+        // If we already have the key, just update the value
+        if (map[index] != null) {
+            for (EntrySet<K, V> entrySet : map[index]) {
+                if (entrySet.getKey().equals(key)) {
+                    entrySet.setValue(value);
+                    return value;
+                }
+            }
+        } else {
+            map[index] = new LinkedList<EntrySet<K, V>>();
         }
-        map[location].add(new CtciEntrySet<>(key, value));
+
+        map[index].add(new EntrySet<>(key, value));
         return value;
     }
 
+    /**
+     * Get the number of entries in the hash
+     * @return the number of entries in the hash
+     */
     public Integer size() {
-        return map.length;
+        return numEntries;
     }
 
+    /**
+     * Whether or not the hash contains a given key
+     * @param key the key to search for
+     * @return {@code true} if found; {@code false} otherwise
+     */
     public Boolean containsKey(K key) {
         Integer location = index(key.hashCode());
         if (map[location] == null) {
             return false;
         }
-        for (CtciEntrySet<K, V> entrySet : map[location]) {
+        for (EntrySet<K, V> entrySet : map[location]) {
             if (entrySet.getKey().equals(key)) {
                 return true;
             }
@@ -45,12 +79,17 @@ public class CtciHashMap<K, V> {
         return false;
     }
 
+    /**
+     * Whether or not the hash contains a given key
+     * @param value the value to search for
+     * @return {@code true} if found; {@code false} otherwise
+     */
     public Boolean containsValue(V value) {
-        for (LinkedList<CtciEntrySet<K, V>> entrySets : map) {
+        for (LinkedList<EntrySet<K, V>> entrySets : map) {
             if (entrySets == null) {
                 continue;
             }
-            for (CtciEntrySet<K, V> entrySet : entrySets) {
+            for (EntrySet<K, V> entrySet : entrySets) {
                 if (entrySet.getValue().equals(value)) {
                     return true;
                 }
@@ -86,16 +125,16 @@ public class CtciHashMap<K, V> {
      * @implNote We can't simply copy over the CtciEntrySets to the new location
      *  since the keys might not collide anymore with the larger array size
      */
-    private void fullRehash(LinkedList<CtciEntrySet<K, V>>[] newMap) {
-        for (LinkedList<CtciEntrySet<K, V>> CtciEntrySets : map) {
+    private void fullRehash(LinkedList<EntrySet<K, V>>[] newMap) {
+        for (LinkedList<EntrySet<K, V>> CtciEntrySets : map) {
             if (CtciEntrySets == null) {
                 continue;
             }
-            for (CtciEntrySet<K, V> CtciEntrySet : CtciEntrySets) {
+            for (EntrySet<K, V> CtciEntrySet : CtciEntrySets) {
                 Integer location = index(CtciEntrySet.getKey().hashCode());
 
                 if (newMap[location] == null) {
-                    newMap[location] = new LinkedList<CtciEntrySet<K, V>>();
+                    newMap[location] = new LinkedList<EntrySet<K, V>>();
                 }
                 newMap[location].add(CtciEntrySet);
             }
@@ -103,22 +142,22 @@ public class CtciHashMap<K, V> {
         map = newMap;
     }
 
+    /**
+     * Find the correct bucket index for a given hashCode
+     * @param hashCode The hash code of the key object
+     * @return the index of the map array
+     */
     private Integer index(Integer hashCode) {
         return hash(hashCode) & (map.length - 1);
     }
 
+    /**
+     * Rehash to further spread bad hashCode implementations
+     * @param hashCode The hash code of the key object
+     * @return a 32 bit Integer hash
+     */
     private Integer hash(Integer hashCode) {
         hashCode ^= (hashCode >>> 20) ^ (hashCode >>> 12);
         return hashCode ^ (hashCode >>> 7) ^ (hashCode >>> 4);
-    }
-
-    public static void main(String[] args) {
-        CtciHashMap<String, String> a = new CtciHashMap<>();
-        System.out.println(Integer.toString(23).hashCode());
-        System.out.println("23".hashCode());
-        a.put(Integer.toString(23), "23");
-        System.out.println(a);
-        System.out.println(a.containsKey("23"));
-        System.out.println(a.containsValue("23"));
     }
 }
