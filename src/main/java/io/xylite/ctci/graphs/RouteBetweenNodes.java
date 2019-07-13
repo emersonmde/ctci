@@ -1,7 +1,6 @@
 package io.xylite.ctci.graphs;
 
 import java.util.LinkedList;
-import java.util.Objects;
 import java.util.Queue;
 
 public class RouteBetweenNodes {

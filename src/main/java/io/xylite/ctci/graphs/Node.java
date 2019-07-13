@@ -1,6 +1,7 @@
 package io.xylite.ctci.graphs;
 
 import java.util.LinkedList;
+import java.util.Objects;
 
 public class Node<T> {
     private T id;
@@ -21,6 +22,20 @@ public class Node<T> {
 
     LinkedList<Node<T>> getAdjacent() {
         return adjacent;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Node)) return false;
+        Node<?> node = (Node<?>) o;
+        return id.equals(node.id) &&
+                adjacent.equals(node.adjacent);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, adjacent);
     }
 
     @Override
