@@ -1,4 +1,4 @@
-package io.xylite.ctci;
+package io.xylite.ctci.data_structures;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -8,7 +8,7 @@ import java.util.LinkedList;
  * @param <K> the type used for keys
  * @param <V> the type used for values
  */
-public class HashMap<K, V> {
+public class HashTable<K, V> {
     private static final Integer DEFAULT_SIZE = 3;
     private static final Float LOAD_FACTOR = 0.75f;
     private Integer numEntries;
@@ -17,7 +17,7 @@ public class HashMap<K, V> {
     /**
      * Constructs an empty HashMap
      */
-    HashMap() {
+    HashTable() {
         numEntries = 0;
         map = new LinkedList[DEFAULT_SIZE];
     }
@@ -51,6 +51,19 @@ public class HashMap<K, V> {
 
         map[index].add(new EntrySet<>(key, value));
         return value;
+    }
+
+    public V get(K key) {
+        Integer index = index(key.hashCode());
+        if (map[index] == null) {
+            return null;
+        }
+        for (EntrySet<K, V> entrySet : map[index]) {
+            if (entrySet.getKey().equals(key)) {
+                return entrySet.getValue();
+            }
+        }
+        return null;
     }
 
     /**

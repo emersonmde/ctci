@@ -1,4 +1,4 @@
-package io.xylite.ctci;
+package io.xylite.ctci.data_structures;
 
 public class EntrySet<K, V> {
     private K key;
