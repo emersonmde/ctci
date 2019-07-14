@@ -1,7 +1,10 @@
 package io.xylite.ctci.data_structures;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 /**
  * A simple HashMap implementation
@@ -12,7 +15,7 @@ public class HashTable<K, V> {
     private static final Integer DEFAULT_SIZE = 3;
     private static final Float LOAD_FACTOR = 0.75f;
     private Integer numEntries;
-    private LinkedList<EntrySet<K, V>>[] map;
+    private LinkedList<Entry<K, V>>[] map;
 
     /**
      * Constructs an empty HashMap
@@ -39,28 +42,33 @@ public class HashTable<K, V> {
 
         // If we already have the key, just update the value
         if (map[index] != null) {
-            for (EntrySet<K, V> entrySet : map[index]) {
-                if (entrySet.getKey().equals(key)) {
-                    entrySet.setValue(value);
+            for (Entry<K, V> entry : map[index]) {
+                if (entry.getKey().equals(key)) {
+                    entry.setValue(value);
                     return value;
                 }
             }
         } else {
-            map[index] = new LinkedList<EntrySet<K, V>>();
+            map[index] = new LinkedList<Entry<K, V>>();
         }
 
-        map[index].add(new EntrySet<>(key, value));
+        map[index].add(new Entry<>(key, value));
         return value;
     }
 
+    /**
+     * Returns the value for a given key
+     * @param key the key to find
+     * @return the value for a given key
+     */
     public V get(K key) {
         Integer index = index(key.hashCode());
         if (map[index] == null) {
             return null;
         }
-        for (EntrySet<K, V> entrySet : map[index]) {
-            if (entrySet.getKey().equals(key)) {
-                return entrySet.getValue();
+        for (Entry<K, V> entry : map[index]) {
+            if (entry.getKey().equals(key)) {
+                return entry.getValue();
             }
         }
         return null;
@@ -84,8 +92,8 @@ public class HashTable<K, V> {
         if (map[location] == null) {
             return false;
         }
-        for (EntrySet<K, V> entrySet : map[location]) {
-            if (entrySet.getKey().equals(key)) {
+        for (Entry<K, V> entry : map[location]) {
+            if (entry.getKey().equals(key)) {
                 return true;
             }
         }
@@ -98,17 +106,25 @@ public class HashTable<K, V> {
      * @return {@code true} if found; {@code false} otherwise
      */
     public Boolean containsValue(V value) {
-        for (LinkedList<EntrySet<K, V>> entrySets : map) {
-            if (entrySets == null) {
+        for (LinkedList<Entry<K, V>> entries : map) {
+            if (entries == null) {
                 continue;
             }
-            for (EntrySet<K, V> entrySet : entrySets) {
-                if (entrySet.getValue().equals(value)) {
+            for (Entry<K, V> entry : entries) {
+                if (entry.getValue().equals(value)) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    public Set<Entry<K, V>> entrySet() {
+        Set<Entry<K, V>> set = new HashSet<>();
+        for (LinkedList<Entry<K, V>> entries : map) {
+            set.addAll(entries);
+        }
+        return set;
     }
 
     @Override
@@ -138,16 +154,16 @@ public class HashTable<K, V> {
      * @implNote We can't simply copy over the CtciEntrySets to the new location
      *  since the keys might not collide anymore with the larger array size
      */
-    private void fullRehash(LinkedList<EntrySet<K, V>>[] newMap) {
-        for (LinkedList<EntrySet<K, V>> CtciEntrySets : map) {
+    private void fullRehash(LinkedList<Entry<K, V>>[] newMap) {
+        for (LinkedList<Entry<K, V>> CtciEntrySets : map) {
             if (CtciEntrySets == null) {
                 continue;
             }
-            for (EntrySet<K, V> CtciEntrySet : CtciEntrySets) {
+            for (Entry<K, V> CtciEntrySet : CtciEntrySets) {
                 Integer location = index(CtciEntrySet.getKey().hashCode());
 
                 if (newMap[location] == null) {
-                    newMap[location] = new LinkedList<EntrySet<K, V>>();
+                    newMap[location] = new LinkedList<Entry<K, V>>();
                 }
                 newMap[location].add(CtciEntrySet);
             }
@@ -172,5 +188,39 @@ public class HashTable<K, V> {
     private Integer hash(Integer hashCode) {
         hashCode ^= (hashCode >>> 20) ^ (hashCode >>> 12);
         return hashCode ^ (hashCode >>> 7) ^ (hashCode >>> 4);
+    }
+
+    public static class Entry<T, U> {
+        private T key;
+        private U value;
+
+        Entry(T key, U value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public T getKey() {
+            return key;
+        }
+
+        public void setKey(T key) {
+            this.key = key;
+        }
+
+        public U getValue() {
+            return value;
+        }
+
+        public void setValue(U value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return "Entry{" +
+                    "key=" + key +
+                    ", value=" + value +
+                    '}';
+        }
     }
 }

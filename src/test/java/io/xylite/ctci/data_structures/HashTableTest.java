@@ -1,6 +1,5 @@
-package io.xylite.ctci;
+package io.xylite.ctci.data_structures;
 
-import io.xylite.ctci.data_structures.HashTable;
 import org.junit.Before;
 import org.junit.Test;
 
